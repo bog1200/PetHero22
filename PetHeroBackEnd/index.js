@@ -5,12 +5,14 @@ const bcrypt = require('bcrypt');
 const app = express();
 const db = require('./utils/mysql');
 const { v4: uuid } = require('uuid');
-app.get('/ping', (req, res) => {
+const cors = require('cors');
+app.use(cors());
+app.get('/api/ping', (req, res) => {
     console.log(req);
     res.contentType('application/json').send({"time":new Date().toLocaleString("ro-RO")});
   });
 
-app.post('/users/register',jsonParser, async (req, res) => {
+app.post('/api/users/register',jsonParser, async (req, res) => {
     console.log(req);
     const account = await db.query(`SELECT userid FROM users WHERE email = "${req.body.email}"`);
     if (account.length>0) {
@@ -25,7 +27,7 @@ app.post('/users/register',jsonParser, async (req, res) => {
     res.contentType('application/json').status(201).send({"message":"User registered."});
     }
 });
-app.post('/users/login', jsonParser, async (req, res) => {
+app.post('/api/users/login', jsonParser, async (req, res) => {
      console.log(req)
     const accounts = await db.query(`SELECT password, userid FROM users WHERE email = "${req.body.email}"`);
     if (accounts.length>0) {
@@ -42,7 +44,7 @@ app.post('/users/login', jsonParser, async (req, res) => {
         res.contentType('application/json').status(401).send({"error":"User not found"});
     }
 });
-app.post('/users/logout', jsonParser, async (req, res) => {
+app.post('/api/users/logout', jsonParser, async (req, res) => {
     console.log(req);
     const session = await db.query(`SELECT userid FROM sessions WHERE token = "${req.body.token}"`);
     if (session.length>0) {
@@ -53,7 +55,7 @@ app.post('/users/logout', jsonParser, async (req, res) => {
         res.contentType('application/json').status(401).send({"error":"User not logged in."});
     }
 });
-app.post('/users/delete', jsonParser, async (req, res) => {
+app.post('/api/users/delete', jsonParser, async (req, res) => {
     console.log(req);
     const session = await db.query(`SELECT userid FROM sessions WHERE token = "${req.body.token}"`);
     if (session.length>0) {
@@ -71,8 +73,24 @@ app.post('/users/delete', jsonParser, async (req, res) => {
         res.contentType('application/json').status(401).send({"error":"User not logged in."});
     }
 });
+app.post('/api/users/@me',jsonParser, async (req, res) => {
+    console.log(req);
+    const session = await db.query(`SELECT userid FROM sessions WHERE token = "${req.body.token}"`);
+    if (session.length>0) {
+        const account = await db.query(`SELECT userid, name, email FROM users WHERE userid = "${session[0].userid}"`);
+        if (account.length>0) {
+            res.contentType('application/json').send(account[0]);
+        }
+        else {
+            res.contentType('application/json').status(400).send({"error":"User not found."});
+        }
+    }
+    else {
+        res.contentType('application/json').status(401).send({"error":"User not logged in."});
+    }
+});
 
-app.post("/posts/new", jsonParser, async (req, res) => {
+app.post("/api/posts/new", jsonParser, async (req, res) => {
     console.log(req);
     const session = await db.query(`SELECT userid FROM sessions WHERE token = "${req.body.token}"`);
     if (session.length>0) {
@@ -83,7 +101,7 @@ app.post("/posts/new", jsonParser, async (req, res) => {
         res.contentType('application/json').status(401).send({"error":"User not logged in."});
     }
 });
-app.post("/posts/delete", jsonParser, async (req, res) => {
+app.post("/api/posts/delete", jsonParser, async (req, res) => {
     console.log(req);
     const session = await db.query(`SELECT userid FROM sessions WHERE token = "${req.body.token}"`);
     if (session.length>0) {
@@ -100,7 +118,7 @@ app.post("/posts/delete", jsonParser, async (req, res) => {
         res.contentType('application/json').status(401).send({"error":"User not logged in."});
     }
 });
-app.post("/posts/edit", jsonParser, async (req, res) => {
+app.post("/api/posts/edit", jsonParser, async (req, res) => {
     console.log(req);
     const session = await db.query(`SELECT userid FROM sessions WHERE token = "${req.body.token}"`);
     if (session.length>0) {
@@ -117,7 +135,7 @@ app.post("/posts/edit", jsonParser, async (req, res) => {
         res.contentType('application/json').status(401).send({"error":"User not logged in."});
     }
 });
-app.post("/posts/get", jsonParser, async (req, res) => {
+app.post("/api/posts/get", jsonParser, async (req, res) => {
     console.log(req);
     const session = await db.query(`SELECT userid FROM sessions WHERE token = "${req.body.token}"`);
     if (session.length>0) {
@@ -128,7 +146,7 @@ app.post("/posts/get", jsonParser, async (req, res) => {
         res.contentType('application/json').status(401).send({"error":"User not logged in."});
     }
 });
-app.post("/posts/getall", jsonParser, async (req, res) => {
+app.post("/api/posts/getall", jsonParser, async (req, res) => {
     console.log(req);
     const session = await db.query(`SELECT userid FROM sessions WHERE token = "${req.body.token}"`);
     if (session.length>0) {
@@ -140,7 +158,7 @@ app.post("/posts/getall", jsonParser, async (req, res) => {
     }
 });
 
-app.post("/messages/new", jsonParser, async (req, res) => {
+app.post("/api/messages/new", jsonParser, async (req, res) => {
     console.log(req);
     const session = await db.query(`SELECT userid FROM sessions WHERE token = "${req.body.token}"`);
     if (session.length>0) {
@@ -152,7 +170,7 @@ app.post("/messages/new", jsonParser, async (req, res) => {
     }
 });
 
-app.post("/messages/get", jsonParser, async (req, res) => {
+app.post("/api/messages/get", jsonParser, async (req, res) => {
     console.log(req);
     const session = await db.query(`SELECT userid FROM sessions WHERE token = "${req.body.token}"`);
     if (session.length>0) {

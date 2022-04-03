@@ -1,0 +1,10 @@
+{
+    "theme_color": "#bd10e0",
+    "background_color": "#bd10e0",
+    "display": "standalone",
+    "scope": "/",
+    "start_url": "/login",
+    "name": "Pet Hero",
+    "short_name": "Pet Hero"
+    
+}
