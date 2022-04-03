@@ -36,7 +36,7 @@ app.post('/api/users/login', jsonParser, async (req, res) => {
             if (result) {
                 const session = uuid();
                 db.query(`INSERT INTO sessions (token, userid) VALUES ("${session}", "${account.userid}")`);
-                res.contentType('application/json').send({"token": session, "expiration_time":Date.now()+3600000});   //send the token
+                res.contentType('application/json').send({"userid": account.userid,"token": session, "expiration_time":Date.now()+3600000});   //send the token
             }
         });
     }

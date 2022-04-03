@@ -2,14 +2,30 @@ body{
     background-color: beige;
 }
 .post{
+    box-sizing: border-box;
     border: 2px solid black;
+    padding: 10px;
+    margin: 10px;
 }
-.nav li{
+li{
     display: inline;
 
 }
-.nav li a{
+li a{
     padding: 10px 20px;
     text-decoration: none;
     color: black;
+}
+li a:hover{
+    background-color: black;
+    color: white;
+}
+form {
+    display: inline-block;
+}
+.right{
+    float: right;
+}
+.left{
+    float: left;
 }
